@@ -1,0 +1,5 @@
+{
+  "name": "PengView Vision",
+  "description": "An AI-powered toolkit for architects. Upload a building photo to generate a full design portfolio and a detailed building analysis with visual sketches (sun, wind, shadow).",
+  "requestFramePermissions": []
+}
