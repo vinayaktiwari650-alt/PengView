@@ -1,23 +1,19 @@
+
+
 import React, { useState, useCallback } from 'react';
 import { Spinner } from './Spinner';
 import { ImageViewer } from './ImageViewer';
 import { analyzeBuilding, generateArchitecturalImage } from '../services/geminiService';
 import type { ImageFile, AnalysisData } from '../types';
 import { fileToGenerativePart } from '../utils/fileUtils';
-import * as JSZip from 'jszip';
 
-const ANALYSIS_SKETCHES = [
-  { title: 'Sun Path Analysis', prompt: 'Create a clean, technical diagram illustrating the sun path analysis for this building throughout the day, showing sun angles and direction.' },
-  { title: 'Wind Analysis', prompt: 'Generate a conceptual diagram illustrating a wind analysis for this building, showing prevailing wind direction and how the building form affects airflow.' },
-  { title: 'Shadow Analysis', prompt: 'Produce a clear shadow analysis diagram for this building, showing how its shadows are cast on its surroundings during different times of the day (e.g., morning, noon, evening).' },
-];
-
-const ANALYSIS_STAGES = ['Textual Analysis', ...ANALYSIS_SKETCHES.map(s => s.title)];
+const ANALYSIS_STAGES = ['Aerial View Generation', 'Textual Analysis'];
 
 interface BuildingAnalyzerProps {
   image: ImageFile;
   analysisData: AnalysisData | null;
-  setAnalysisData: (data: AnalysisData | null) => void;
+  // FIX: Update prop type to allow functional updates for state.
+  setAnalysisData: React.Dispatch<React.SetStateAction<AnalysisData | null>>;
 }
 
 export const BuildingAnalyzer: React.FC<BuildingAnalyzerProps> = ({ image, analysisData, setAnalysisData }) => {
@@ -25,7 +21,7 @@ export const BuildingAnalyzer: React.FC<BuildingAnalyzerProps> = ({ image, analy
   const [error, setError] = useState<string | null>(null);
 
   const analysisText = analysisData?.text || null;
-  const generatedAssets = analysisData?.assets || [];
+  const generatedAsset = analysisData?.assets?.[0] || null;
   const generationProgress = analysisData?.progress || {};
 
   const handleAnalyze = useCallback(async () => {
@@ -39,32 +35,32 @@ export const BuildingAnalyzer: React.FC<BuildingAnalyzerProps> = ({ image, analy
     setAnalysisData({ text: null, assets: [], progress: initialProgress });
 
     try {
-      const imagePart = await fileToGenerativePart(image.dataUrl, image.type);
+      const originalImagePart = await fileToGenerativePart(image.dataUrl, image.type);
 
-      // 1. Generate Textual Analysis
+      // 1. Generate Aerial View
+      let aerialImageUrl = '';
       try {
-        const result = await analyzeBuilding(imagePart);
+        aerialImageUrl = await generateArchitecturalImage(originalImagePart, "Create a photorealistic image showing an aerial drone view of this building and its surroundings.");
+        setAnalysisData(prev => ({
+          ...prev!,
+          assets: [{ title: 'Aerial View', imageUrl: aerialImageUrl }],
+          progress: { ...prev!.progress, 'Aerial View Generation': 'success' }
+        }));
+      } catch (err) {
+        console.error('Failed to generate aerial view:', err);
+        setAnalysisData(prev => ({ ...prev!, progress: { ...prev!.progress, 'Aerial View Generation': 'error' } }));
+        throw new Error('Failed to generate the aerial view for analysis.');
+      }
+
+      // 2. Generate Textual Analysis from the generated Aerial View
+      try {
+        const aerialImagePart = await fileToGenerativePart(aerialImageUrl, 'image/png');
+        const result = await analyzeBuilding(aerialImagePart);
         setAnalysisData(prev => ({ ...prev!, text: result, progress: { ...prev!.progress, 'Textual Analysis': 'success' } }));
       } catch (err) {
         console.error('Failed to generate textual analysis:', err);
         setAnalysisData(prev => ({ ...prev!, progress: { ...prev!.progress, 'Textual Analysis': 'error' } }));
-        throw new Error('Failed to generate textual analysis.');
-      }
-
-      // 2. Generate Analysis Sketches sequentially
-      for (const sketch of ANALYSIS_SKETCHES) {
-        try {
-          const result = await generateArchitecturalImage(imagePart, sketch.prompt);
-          setAnalysisData(prev => ({
-            ...prev!,
-            assets: [...prev!.assets, { title: sketch.title, imageUrl: result }],
-            progress: { ...prev!.progress, [sketch.title]: 'success' }
-          }));
-        } catch (err) {
-          console.error(`Failed to generate ${sketch.title}:`, err);
-          setAnalysisData(prev => ({ ...prev!, progress: { ...prev!.progress, [sketch.title]: 'error' } }));
-          // Continue to next sketch even if one fails
-        }
+        throw new Error('Failed to generate textual analysis from the aerial view.');
       }
 
     } catch (err) {
@@ -74,29 +70,14 @@ export const BuildingAnalyzer: React.FC<BuildingAnalyzerProps> = ({ image, analy
       setIsLoading(false);
     }
   }, [image, setAnalysisData]);
-
-  const handleDownloadSketches = async () => {
-    if (generatedAssets.length === 0) return;
-
-    const zip = new (JSZip as any)();
-    
-    const imagePromises = generatedAssets.map(async (asset) => {
-      const response = await fetch(asset.imageUrl);
-      const blob = await response.blob();
-      const filename = `${asset.title.replace(/\s+/g, '_')}.png`;
-      zip.file(filename, blob);
-    });
-
-    await Promise.all(imagePromises);
-
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
+  
+  const handleDownloadImage = (imageUrl: string, title: string) => {
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(zipBlob);
-    link.download = 'PengView_Analysis_Sketches.zip';
+    link.href = imageUrl;
+    link.download = `${title.replace(/\s+/g, '_')}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
   };
 
   const handleDownloadMarkdown = () => {
@@ -105,7 +86,7 @@ export const BuildingAnalyzer: React.FC<BuildingAnalyzerProps> = ({ image, analy
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'PengView_Analysis.md';
+    link.download = 'PengVision_Aerial_Analysis.md';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -121,9 +102,9 @@ export const BuildingAnalyzer: React.FC<BuildingAnalyzerProps> = ({ image, analy
 
   return (
     <div className="flex flex-col gap-6 p-6 bg-black/30 border border-gray-800 rounded-lg">
-      <h2 className="text-2xl font-bold text-white">Building Analysis</h2>
+      <h2 className="text-2xl font-bold text-white">Aerial View &amp; Analysis</h2>
        <p className="text-sm text-gray-400">
-        Generate a detailed text analysis and conceptual sketches for sun, wind, and shadow analysis.
+        First, generate a photorealistic aerial view of the building, then receive a detailed analysis based on that new perspective.
       </p>
       <button
         onClick={handleAnalyze}
@@ -136,7 +117,7 @@ export const BuildingAnalyzer: React.FC<BuildingAnalyzerProps> = ({ image, analy
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-5.966-3.042A1 1 0 015 14v-2.01a1 1 0 01.527-.882l2.94-1.715a1 1 0 011.054 1.764l-2.02 1.178 2.02 1.178a1 1 0 01-1.054 1.764l-2.94-1.715A1 1 0 014 11.99V10a1 1 0 112 0v.151l1.13 1.13A4.004 4.004 0 0110 6a4 4 0 11-2.828 6.828L6.04 13.96A6 6 0 1010 4a6 6 0 00-5.966 10.958z" clipRule="evenodd" />
             </svg>
         )}
-        {isLoading ? 'Generating Analysis...' : 'Generate Full Analysis'}
+        {isLoading ? 'Generating...' : 'Generate Aerial View & Analysis'}
       </button>
 
       {error && (
@@ -155,8 +136,16 @@ export const BuildingAnalyzer: React.FC<BuildingAnalyzerProps> = ({ image, analy
           </div>
       )}
       
-      {(analysisText || generatedAssets.length > 0) ? (
+      {(analysisText || generatedAsset) ? (
         <div className="mt-4 flex flex-col gap-6">
+            {generatedAsset && (
+                <ImageViewer 
+                    key={generatedAsset.title} 
+                    title={generatedAsset.title} 
+                    imageUrl={generatedAsset.imageUrl} 
+                    onDownload={() => handleDownloadImage(generatedAsset.imageUrl, generatedAsset.title)}
+                />
+            )}
             {analysisText && (
                 <div className="p-4 bg-gray-900/50 border border-gray-800 rounded-lg">
                     <div className="flex justify-between items-center mb-2">
@@ -166,30 +155,10 @@ export const BuildingAnalyzer: React.FC<BuildingAnalyzerProps> = ({ image, analy
                     <div className="text-gray-300 prose prose-invert max-w-none whitespace-pre-wrap">{analysisText}</div>
                 </div>
             )}
-            
-            {generatedAssets.length > 0 && (
-                <div className="flex flex-col gap-4">
-                     <div className="flex justify-between items-center">
-                        <h3 className="text-lg font-semibold text-white">Analysis Sketches</h3>
-                         {!isLoading && (
-                            <button onClick={handleDownloadSketches} className="text-sm py-1 px-3 bg-green-600 hover:bg-green-700 rounded-md">Download Sketches as .zip</button>
-                         )}
-                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        {ANALYSIS_SKETCHES
-                            .map(p => generatedAssets.find(a => a.title === p.title))
-                            .filter(Boolean)
-                            .map((asset) => asset && (
-                                <ImageViewer key={asset.title} title={asset.title} imageUrl={asset.imageUrl} />
-                            ))
-                        }
-                    </div>
-                </div>
-            )}
         </div>
       ) : !isLoading && Object.keys(generationProgress).length === 0 ? (
          <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 pt-10">
-            <p className="text-lg">Your building analysis will appear here.</p>
+            <p className="text-lg">Your aerial view and analysis will appear here.</p>
         </div>
       ) : null}
     </div>

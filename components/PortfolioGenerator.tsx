@@ -9,7 +9,7 @@ import { fileToGenerativePart } from '../utils/fileUtils';
 import * as JSZip from 'jszip';
 
 const PORTFOLIO_PROMPTS = [
-  { title: '3D Model Render', prompt: 'Create a photorealistic 3D model visualization of this building' },
+  { title: '3D Block Model', prompt: 'Create a simple, untextured 3D block model of this building, showing its basic geometric form. The style should be clean and minimalist, like a gray or white clay model.' },
   { title: 'Photorealistic Night Render', prompt: 'Reimagine this building as a photorealistic night scene with dramatic, warm lighting' },
   { title: 'Architectural Floor Plans', prompt: 'Illustrate a creative concept for a possible floor plan layout for this building, shown from a top-down perspective' },
   { title: 'Conceptual Design Sketches', prompt: "Generate a collage of artistic, hand-drawn architectural sketches of this building. Show different angles and perspectives, as if from a designer's sketchbook." },
@@ -24,7 +24,8 @@ const PORTFOLIO_PROMPTS = [
 interface PortfolioGeneratorProps {
     image: ImageFile;
     portfolioData: PortfolioData | null;
-    setPortfolioData: (data: PortfolioData | null) => void;
+    // FIX: Update prop type to allow functional updates for state.
+    setPortfolioData: React.Dispatch<React.SetStateAction<PortfolioData | null>>;
 }
 
 export const PortfolioGenerator: React.FC<PortfolioGeneratorProps> = ({ image, portfolioData, setPortfolioData }) => {
@@ -105,7 +106,7 @@ export const PortfolioGenerator: React.FC<PortfolioGeneratorProps> = ({ image, p
     const zipBlob = await zip.generateAsync({ type: 'blob' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(zipBlob);
-    link.download = 'PengView_Portfolio.zip';
+    link.download = 'PengVision_Portfolio.zip';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

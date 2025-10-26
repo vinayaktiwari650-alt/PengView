@@ -22,7 +22,8 @@ const NARRATION_STAGES = [...NARRATION_VIEWS.map(v => v.title), 'Narration Scrip
 interface AiNarratorProps {
     image: ImageFile;
     narratorData: NarratorData | null;
-    setNarratorData: (data: NarratorData | null) => void;
+    // FIX: Update prop type to allow functional updates for state.
+    setNarratorData: React.Dispatch<React.SetStateAction<NarratorData | null>>;
 }
 
 export const AiNarrator: React.FC<AiNarratorProps> = ({ image, narratorData, setNarratorData }) => {
@@ -117,7 +118,7 @@ export const AiNarrator: React.FC<AiNarratorProps> = ({ image, narratorData, set
     const zipBlob = await zip.generateAsync({ type: 'blob' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(zipBlob);
-    link.download = 'PengView_Views.zip';
+    link.download = 'PengVision_Views.zip';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
