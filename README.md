@@ -1,4 +1,4 @@
-# PengVision 🐧
+# PengVision 
 
 An AI-powered toolkit for architects to visualize, analyze, and present building designs. Simply upload a photo of a building, and PengVision will generate a complete suite of architectural assets.
 
@@ -6,7 +6,7 @@ An AI-powered toolkit for architects to visualize, analyze, and present building
 
 ---
 
-## ✨ Features
+##  Features
 
 -   **Image Upload**: Start by uploading a JPG, PNG, or WEBP photo of a building.
 -   **Architectural Portfolio Generator**: Automatically creates a professional portfolio with multiple views:
@@ -21,7 +21,7 @@ An AI-powered toolkit for architects to visualize, analyze, and present building
 -   **AI Narrator & Views**: Produces a series of four distinct, artistic views (Aerial, Side, Ant's Eye, Interior) and generates a compelling narration script to accompany them, complete with a text-to-speech audio file.
 -   **Downloadable Assets**: All generated images and text analyses can be downloaded individually or as a `.zip` archive.
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 This project is built with a modern, no-build-step frontend stack.
 
@@ -37,7 +37,7 @@ This project is built with a modern, no-build-step frontend stack.
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 To run this project, you need a valid Google Gemini API key and a simple local web server.
 
@@ -80,7 +80,7 @@ Since this project does not have a build step, you can run it using any simple l
 
 ---
 
-## 📂 File Structure
+##  File Structure
 
 The project has a simple and organized file structure.
 
@@ -104,7 +104,7 @@ The project has a simple and organized file structure.
     └── ...and more
 ```
 
-## 🤝 How to Contribute
+##  How to Contribute
 
 Contributions are welcome! If you have ideas for new features or improvements, please follow these steps:
 
@@ -116,6 +116,6 @@ Contributions are welcome! If you have ideas for new features or improvements, p
 
 ---
 
-## 📜 License
+##  License
 
 This project is licensed under the MIT License. See the `LICENSE` file for more details.
