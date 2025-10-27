@@ -14,25 +14,37 @@ export interface PortfolioData {
   progress: Record<string, 'loading' | 'success' | 'error'>;
 }
 
-export interface AnalysisAsset {
-  title: string;
-  imageUrl: string;
+export interface SiteContextData {
+  siteImage: {
+    dataUrl: string;
+    type: string;
+  } | null;
+  renderUrl: string | null;
+  progress: 'idle' | 'loading' | 'success' | 'error';
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  createdAt: string;
+  image: {
+    dataUrl: string;
+    type: string;
+  };
+  portfolioData: PortfolioData | null;
+  siteContextData: SiteContextData | null;
+}
+
+// FIX: Add AnalysisData type for BuildingAnalyzer component state.
 export interface AnalysisData {
   text: string | null;
-  assets: AnalysisAsset[];
+  assets: PortfolioAsset[];
   progress: Record<string, 'loading' | 'success' | 'error'>;
 }
 
-// FIX: Define and export the NarratorData interface for the AiNarrator component.
-export interface NarratorView {
-  title: string;
-  imageUrl: string;
-}
-
+// FIX: Add NarratorData type for AiNarrator component state.
 export interface NarratorData {
-  views: NarratorView[];
+  views: PortfolioAsset[];
   script: string | null;
   audioUrl: string | null;
   progress: Record<string, 'loading' | 'success' | 'error'>;

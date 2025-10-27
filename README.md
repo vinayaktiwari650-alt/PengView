@@ -1,14 +1,19 @@
-# PengVision 
+# PengVision 🐧
 
-An AI-powered toolkit for architects to visualize, analyze, and present building designs. Simply upload a photo of a building, and PengVision will generate a complete suite of architectural assets.
+An AI-powered toolkit for architects to visualize, analyze, and present building designs. Simply upload a photo of a building, and PengVision will generate a complete suite of architectural assets, with the ability to save your work and continue later.
 
 ![PengVision Screenshot](https://storage.googleapis.com/aistudio-project-assets/L2Fpc3R1ZGlvL2dlbS1wcm9qZWN0cy9wLzU1OTM5NTU5NjM5MA/persistent/11802909_1721243142491.png) <!-- Replace with a screenshot of your app -->
 
 ---
 
-##  Features
+## ✨ Features
 
+-   **User Login**: A simple, username-based login system to provide a personal workspace. All projects are saved per-user in the browser's local storage.
 -   **Image Upload**: Start by uploading a JPG, PNG, or WEBP photo of a building.
+-   **Project Management**:
+    -   **Save Project**: Save your uploaded image and all generated assets under a project name.
+    -   **My Projects**: View, load, and delete your saved projects from a convenient modal.
+    -   **New Project**: Easily clear the workspace to start fresh.
 -   **Architectural Portfolio Generator**: Automatically creates a professional portfolio with multiple views:
     -   3D Block Model
     -   Photorealistic Night Render
@@ -16,12 +21,10 @@ An AI-powered toolkit for architects to visualize, analyze, and present building
     -   Artistic Design Sketches
     -   Technical Elevation Drawings
     -   Detailed Close-up Sketches
-    -   Aerial, Side, Ant's Eye, and Interior Views
--   **Aerial View & Analysis**: Generates a photorealistic aerial view and then provides a detailed textual analysis of the building's architecture based on that new perspective.
--   **AI Narrator & Views**: Produces a series of four distinct, artistic views (Aerial, Side, Ant's Eye, Interior) and generates a compelling narration script to accompany them, complete with a text-to-speech audio file.
+-   **Site Context Renderer**: Place your building design onto a real-world site by uploading a map screenshot.
 -   **Downloadable Assets**: All generated images and text analyses can be downloaded individually or as a `.zip` archive.
 
-##  Tech Stack
+## 🛠️ Tech Stack
 
 This project is built with a modern, no-build-step frontend stack.
 
@@ -30,14 +33,13 @@ This project is built with a modern, no-build-step frontend stack.
 -   **AI**: [Google Gemini API](https://ai.google.dev/docs/gemini_api_overview)
     -   `gemini-2.5-flash-image` for all image generation tasks.
     -   `gemini-2.5-pro` for textual analysis and script generation.
-    -   `gemini-2.5-flash-preview-tts` for text-to-speech audio generation.
 -   **Styling**: [Tailwind CSS](https://tailwindcss.com/) (via CDN)
 -   **Packaging**: [JSZip](https://stuk.github.io/jszip/) for creating downloadable `.zip` archives.
 -   **Environment**: Runs directly in the browser using ES Modules and an `importmap` in `index.html`. No `npm`, `yarn`, or build tools like Vite/Webpack are required.
 
 ---
 
-##  Getting Started
+## 🚀 Getting Started
 
 To run this project, you need a valid Google Gemini API key and a simple local web server.
 
@@ -55,9 +57,10 @@ The application requires a Google Gemini API key to function.
 
 Since this project does not have a build step, you can run it using any simple local web server.
 
-1.  **Clone or Download the Repository**: Get all the project files onto your local machine.
-2.  **Navigate to the Project Directory**: Open your terminal or command prompt and `cd` into the project folder.
-3.  **Start a Local Server**: Run one of the following commands:
+1.  **Enter a Username**: On first launch, you'll be prompted to enter a username. This creates your local workspace.
+2.  **Clone or Download the Repository**: Get all the project files onto your local machine.
+3.  **Navigate to the Project Directory**: Open your terminal or command prompt and `cd` into the project folder.
+4.  **Start a Local Server**: Run one of the following commands:
 
     **Using Python:**
     ```bash
@@ -76,11 +79,11 @@ Since this project does not have a build step, you can run it using any simple l
     -   Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension.
     -   Right-click on `index.html` and select "Open with Live Server".
 
-4.  **Open in Browser**: Open your web browser and navigate to the local server address provided (e.g., `http://localhost:8000` or `http://127.0.0.1:5500`).
+5.  **Open in Browser**: Open your web browser and navigate to the local server address provided (e.g., `http://localhost:8000` or `http://127.0.0.1:5500`).
 
 ---
 
-##  File Structure
+## 📂 File Structure
 
 The project has a simple and organized file structure.
 
@@ -93,18 +96,17 @@ The project has a simple and organized file structure.
 ├── README.md           # This file.
 ├── types.ts            # Contains all TypeScript type definitions for the project.
 ├── components/         # Contains all reusable React components.
-│   ├── AiNarrator.tsx
-│   ├── BuildingAnalyzer.tsx
-│   ├── Header.tsx
+│   ├── Login.tsx
+│   ├── ProjectsModal.tsx
 │   ├── ...and more
 ├── services/           # Handles external API calls.
 │   └── geminiService.ts  # All interactions with the Google Gemini API.
 └── utils/              # Helper functions.
-    ├── fileUtils.ts
+    ├── storage.ts
     └── ...and more
 ```
 
-##  How to Contribute
+## 🤝 How to Contribute
 
 Contributions are welcome! If you have ideas for new features or improvements, please follow these steps:
 
@@ -116,6 +118,6 @@ Contributions are welcome! If you have ideas for new features or improvements, p
 
 ---
 
-##  License
+## 📜 License
 
 This project is licensed under the MIT License. See the `LICENSE` file for more details.
